@@ -131,6 +131,9 @@ if __name__ == "__main__":
         my_ls.human_readable = args.human_readable
 
         my_ls.list_files()
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        sys.exit(0)
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
