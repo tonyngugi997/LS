@@ -18,6 +18,8 @@ class PyLS:
         self.location = location
         self.show_all = False
         self.long_format = False
+        self.human_readable = False
+
     def fetch_file_info(self, file):
         " Fetch file information for long listing format"
 
@@ -54,13 +56,36 @@ class PyLS:
                 'size': file_size,
                 'mod_time': mod_time_str,
                 'name': file
+                'size_hr': self.make_size_human_readable(file_size),  # NEW: human-readable version
+
             }
         except FileNotFoundError:
             print(f"Error: The file '{full_path}' does not exist.")
             return None
         
             
-
+    def make_size_human_readable(self, size_bytes):
+        """Convert bytes to human readable format (B, K, M, G)"""
+        if not self.human_readable:
+            return str(size_bytes).rjust(8)
+        
+        # Define size units
+        units = ['B', 'K', 'M', 'G', 'T']
+        unit_index = 0
+        size = float(size_bytes)
+        
+        # Keep dividing by 1024 until size is less than 1024
+        while size >= 1024 and unit_index < len(units) - 1:
+            size /= 1024
+            unit_index += 1
+        
+        # Format with 1 decimal place if needed
+        if size < 10:
+            return f"{size:.1f}{units[unit_index]}".rjust(8)
+        elif size < 100:
+            return f"{size:.0f}{units[unit_index]}".rjust(8)
+        else:
+            return f"{size:.0f}{units[unit_index]}".rjust(8)
     def list_files(self):
         """List files in the current directory"""
         try:
