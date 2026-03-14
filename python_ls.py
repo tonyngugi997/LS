@@ -9,7 +9,6 @@ import argparse
 import sys
 from pathlib import Path
 import time
-import time
 
 
 class PyLS:
@@ -20,50 +19,6 @@ class PyLS:
         self.long_format = False
         self.human_readable = False
 
-    def fetch_file_info(self, file):
-        " Fetch file information for long listing format"
-
-        full_path = os.path.join(self.location, file)
-        try:
-            file_stat = os.stat(full_path)
-
-            if os.path.isdir(full_path):
-                file_type = 'd'
-            elif os.path.islink(full_path):
-                file_type = 'l'
-            else:
-                file_type = '-'
-            
-            #get file permissions
-            permissions = ''
-            permissions += 'r' if file_stat.st_mode & 0o400 else '-'    
-            permissions += 'w' if file_stat.st_mode & 0o200 else '-'
-            permissions += 'x' if file_stat.st_mode & 0o100 else '-'
-            permissions += 'r' if file_stat.st_mode & 0o40 else '-'
-            permissions += 'w' if file_stat.st_mode & 0o20 else '-'
-            permissions += 'x' if file_stat.st_mode & 0o10 else '-'
-            permissions += 'r' if file_stat.st_mode & 0o4 else '-'     
-            permissions += 'x' if file_stat.st_mode & 0o1 else '-'     
-
-            file_size = file_stat.st_size
-
-            mod_time = time.localtime(file_stat.st_mtime)
-            mod_time_str = time.strftime("%b %d %H:%M", mod_time) 
-
-            return{
-                'type': file_type,
-                'permissions': permissions,
-                'size': file_size,
-                'mod_time': mod_time_str,
-                'name': file
-                'size_hr': self.make_size_human_readable(file_size),  # NEW: human-readable version
-
-            }
-        except FileNotFoundError:
-            print(f"Error: The file '{full_path}' does not exist.")
-            return None
-        
-            
     def make_size_human_readable(self, size_bytes):
         """Convert bytes to human readable format (B, K, M, G)"""
         if not self.human_readable:
@@ -86,6 +41,49 @@ class PyLS:
             return f"{size:.0f}{units[unit_index]}".rjust(8)
         else:
             return f"{size:.0f}{units[unit_index]}".rjust(8)
+
+    def fetch_file_info(self, file):
+        """Fetch file information for long listing format"""
+        full_path = os.path.join(self.location, file)
+        try:
+            file_stat = os.stat(full_path)
+
+            if os.path.isdir(full_path):
+                file_type = 'd'
+            elif os.path.islink(full_path):
+                file_type = 'l'
+            else:
+                file_type = '-'
+            
+            # Get file permissions
+            permissions = ''
+            permissions += 'r' if file_stat.st_mode & 0o400 else '-'    
+            permissions += 'w' if file_stat.st_mode & 0o200 else '-'
+            permissions += 'x' if file_stat.st_mode & 0o100 else '-'
+            permissions += 'r' if file_stat.st_mode & 0o40 else '-'
+            permissions += 'w' if file_stat.st_mode & 0o20 else '-'
+            permissions += 'x' if file_stat.st_mode & 0o10 else '-'
+            permissions += 'r' if file_stat.st_mode & 0o4 else '-'     
+            permissions += 'w' if file_stat.st_mode & 0o2 else '-'     
+            permissions += 'x' if file_stat.st_mode & 0o1 else '-'     
+
+            file_size = file_stat.st_size
+
+            mod_time = time.localtime(file_stat.st_mtime)
+            mod_time_str = time.strftime("%b %d %H:%M", mod_time) 
+
+            return {
+                'type': file_type,
+                'permissions': permissions,
+                'size': file_size,
+                'size_hr': self.make_size_human_readable(file_size),
+                'mod_time': mod_time_str,
+                'name': file
+            }
+        except FileNotFoundError:
+            print(f"Error: The file '{full_path}' does not exist.")
+            return None
+        
     def list_files(self):
         """List files in the current directory"""
         try:
@@ -102,7 +100,10 @@ class PyLS:
                 for item in items_to_show:
                     info = self.fetch_file_info(item)
                     if info:
-                        print(f"{info['type']}{info['permissions']} {info['size']:8d} {info['mod_time']} {info['name']}")
+                        if self.human_readable:
+                            print(f"{info['type']}{info['permissions']} {info['size_hr']} {info['mod_time']} {info['name']}")
+                        else:
+                            print(f"{info['type']}{info['permissions']} {info['size']:8d} {info['mod_time']} {info['name']}")
             else:
                 for item in items_to_show:
                     print(item)
@@ -114,15 +115,12 @@ class PyLS:
         except PermissionError:
             print(f"Permission denied to access '{self.location}'")    
 
-
-       
-
-
 if __name__ == "__main__":
     try:
-        parser = argparse.ArgumentParser(description = "Python implementation of Unix ls command")
+        parser = argparse.ArgumentParser(description="Python implementation of Unix ls command")
         parser.add_argument('-a', '--all', action='store_true', help='Include hidden files')
         parser.add_argument('-l', '--long', action='store_true', help='Use a long listing format')
+        parser.add_argument('-H', '--human-readable', action='store_true', help='Print human-readable sizes')
         parser.add_argument('path', nargs='?', default='.', help='Directory to list (default: current directory)')
         args = parser.parse_args()
         
@@ -130,9 +128,9 @@ if __name__ == "__main__":
         my_ls.location = args.path
         my_ls.show_all = args.all
         my_ls.long_format = args.long
+        my_ls.human_readable = args.human_readable
 
         my_ls.list_files()
     except Exception as e:
         print(f"An error occurred: {e}")
         sys.exit(1)
-
