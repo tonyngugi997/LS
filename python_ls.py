@@ -1,7 +1,7 @@
 """
 pyls - Python implementation of Unix ls command
-Author: tonyngugi997
-GitHub: https://github.com/tonyngugi997/LS
+Author: Tony Nguggi
+GitHub: https://github.com/tonyngugi997/
 """
 
 import os
