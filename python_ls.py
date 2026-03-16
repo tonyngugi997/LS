@@ -135,7 +135,7 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser(description="Python implementation of Unix ls command")
         parser.add_argument('-a', '--all', action='store_true', help='Include hidden files')
         parser.add_argument('-l', '--long', action='store_true', help='Use a long listing format')
-        parser.add_argument('-H', '--human-Readable', action='store_true', help='Print human-readable sizes')
+        parser.add_argument('-H', '--human_readable', action='store_true', help='Print human-readable sizes')
         parser.add_argument('-d', '--directories', action='store_true', help='List only directories')
         parser.add_argument('path', nargs='?', default='.', help='Directory to list (default: current directory)')
         args = parser.parse_args()
