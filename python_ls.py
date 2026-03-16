@@ -18,6 +18,7 @@ class PyLS:
         self.show_all = False
         self.long_format = False
         self.human_readable = False
+        self.list_dirs_only = False
 
     def make_size_human_readable(self, size_bytes):
         """Convert bytes to human readable format (B, K, M, G)"""
@@ -29,12 +30,12 @@ class PyLS:
         unit_index = 0
         size = float(size_bytes)
         
-        # Keep dividing by 1024 until size is less than 1024
+        # Keep dividing by 1024 until < 1024
         while size >= 1024 and unit_index < len(units) - 1:
             size /= 1024
             unit_index += 1
         
-        # Format with 1 decimal place if needed
+        # Format with 1 dm 
         if size < 10:
             return f"{size:.1f}{units[unit_index]}".rjust(8)
         elif size < 100:
@@ -113,7 +114,21 @@ class PyLS:
         except FileNotFoundError:
             print(f"Directory '{self.location}' not found")
         except PermissionError:
-            print(f"Permission denied to access '{self.location}'")    
+            print(f"Permission denied to access '{self.location}'")  
+
+    def list_directory(self, path):
+        " list only directories in the given path"
+        try:
+            all_dirs = os.listdir(path)
+            dirs_to_list = []
+            for dir in dirs_to_list:
+                if os.path.isdir:
+                    dirs_to_list.append(dir)
+                    dirs_to_list.sort()
+                    print(dirs_to_list)
+        except FileNotFoundError:
+            print(f"Directory '{path}' not found")
+
 
 if __name__ == "__main__":
     try:
@@ -121,6 +136,7 @@ if __name__ == "__main__":
         parser.add_argument('-a', '--all', action='store_true', help='Include hidden files')
         parser.add_argument('-l', '--long', action='store_true', help='Use a long listing format')
         parser.add_argument('-H', '--human-Readable', action='store_true', help='Print human-readable sizes')
+        parser.add_argument('-d', '--directories', action='store_true', help='List only directories')
         parser.add_argument('path', nargs='?', default='.', help='Directory to list (default: current directory)')
         args = parser.parse_args()
         
@@ -129,6 +145,7 @@ if __name__ == "__main__":
         my_ls.show_all = args.all
         my_ls.long_format = args.long
         my_ls.human_readable = args.human_readable
+        my_ls.list_dirs_only = args.directories
 
         my_ls.list_files()
     except KeyboardInterrupt:
