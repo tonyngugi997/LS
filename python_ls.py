@@ -96,6 +96,14 @@ class PyLS:
                     items_to_show.append(item)
             
             items_to_show.sort()
+
+            if self.list_dirs_only:
+                dirs_only = []
+                for item in items_to_show:
+                    if os.path.isdir(os.path.join(self.location, item)):
+                        dirs_only.append(item)
+                    items_to_show = dirs_only
+        
             
             if self.long_format:
                 for item in items_to_show:
@@ -121,7 +129,7 @@ class PyLS:
         try:
             all_dirs = os.listdir(path)
             dirs_to_list = []
-            for dir in dirs_to_list:
+            for dir in all_dirs:
                 if os.path.isdir:
                     dirs_to_list.append(dir)
                     dirs_to_list.sort()
