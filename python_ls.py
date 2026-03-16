@@ -19,6 +19,8 @@ class PyLS:
         self.long_format = False
         self.human_readable = False
         self.list_dirs_only = False
+        self.reverse_sort = False
+        self.sort_by_time = False
 
     def make_size_human_readable(self, size_bytes):
         """Convert bytes to human readable format (B, K, M, G)"""
@@ -95,16 +97,23 @@ class PyLS:
                 if self.show_all or not item.startswith('.'):
                     items_to_show.append(item)
             
-            items_to_show.sort()
-
-            if self.list_dirs_only:
-                dirs_only = []
+            if self.sort_by_time:
+                items_with_time = []
                 for item in items_to_show:
-                    if os.path.isdir(os.path.join(self.location, item)):
-                        dirs_only.append(item)
-                    items_to_show = dirs_only
-        
+                    full_path = os.path.join(self.location, item)
+                    try:
+                        mtime = os.path.getmtime(full_path)
+                        items_with_time.append((item, mtime))
+                    except OSError:
+                        items_with_time.append((item, 0))
+                items_with_time.sort(reverse=True)
+                items_to_show = [item[0] for item in items_with_time]
+            else:
+                items_to_show.sort()
             
+            if self.reverse_sort:
+                items_to_show.reverse()
+
             if self.long_format:
                 for item in items_to_show:
                     info = self.fetch_file_info(item)
@@ -145,6 +154,8 @@ if __name__ == "__main__":
         parser.add_argument('-l', '--long', action='store_true', help='Use a long listing format')
         parser.add_argument('-H', '--human_readable', action='store_true', help='Print human-readable sizes')
         parser.add_argument('-d', '--directories', action='store_true', help='List only directories')
+        parser.add_argument('-r', '--reverse', action='store_true', help='Reverse the order of the sort')
+        parser.add_argument('-t', '--time', action='store_true', help='Sort by modification time, newest first')
         parser.add_argument('path', nargs='?', default='.', help='Directory to list (default: current directory)')
         args = parser.parse_args()
         
@@ -154,6 +165,8 @@ if __name__ == "__main__":
         my_ls.long_format = args.long
         my_ls.human_readable = args.human_readable
         my_ls.list_dirs_only = args.directories
+        my_ls.reverse_sort = args.reverse
+        my_ls.sort_by_time = args.time
 
         my_ls.list_files()
     except KeyboardInterrupt:
