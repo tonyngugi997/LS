@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 import time
 
+import utills
+
 
 class PyLS:
     def __init__(self, location="."):
@@ -123,8 +125,7 @@ class PyLS:
                         else:
                             print(f"{info['type']}{info['permissions']} {info['size']:8d} {info['mod_time']} {info['name']}")
             else:
-                for item in items_to_show:
-                    print(item)
+                self.format_columns(items_to_show)
                 
             print(f"\nTotal: {len(items_to_show)} items")
                 
@@ -145,6 +146,13 @@ class PyLS:
                     print(dirs_to_list)
         except FileNotFoundError:
             print(f"Directory '{path}' not found")
+    
+    def get_teminal_width(self):
+        return utills.get_terminal_width()
+    
+    def format_columns(self, items):
+        return utills.format_columns(items)
+    
 
 
 if __name__ == "__main__":
