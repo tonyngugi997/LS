@@ -23,6 +23,7 @@ class PyLS:
         self.list_dirs_only = False
         self.reverse_sort = False
         self.sort_by_time = False
+        self.use_color = True
 
     def make_size_human_readable(self, size_bytes):
         """Convert bytes to human readable format (B, K, M, G)"""
@@ -125,7 +126,7 @@ class PyLS:
                         else:
                             print(f"{info['type']}{info['permissions']} {info['size']:8d} {info['mod_time']} {info['name']}")
             else:
-                self.format_columns(items_to_show)
+                utills.format_columns(items_to_show, self.location, self.use_color)
                 
             print(f"\nTotal: {len(items_to_show)} items")
                 
